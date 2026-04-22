@@ -38,6 +38,14 @@ A Blue's Clues-themed interactive routine chart, built as a single self-containe
 - **Bedtime:** "Sleep tight!" / "Blue found all the clues! Sweet dreams! 🌙"
 - **Morning:** "Let's go! Yay!" / "Blue thinks you're a superstar today! ⭐"
 
+## Updating
+
+Edit the `R` object in the `<script>` tag to change tasks or messages, then:
+
+```
+Push my latest changes to GitHub
+```
+
 ## Rebuilding from scratch
 
 Everything is in `index.html` — no build tools, no dependencies beyond Google Fonts.
