@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Blue's Routine">
+  <title>Blue's Routine Clues!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #eef4ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px 48px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+    }
+
+    .moon-deco {
+      position: absolute;
+      top: -8px;
+      right: 4px;
+      font-size: 2.6rem;
+      pointer-events: none;
+    }
+
+    /* Header card */
+    .header-card {
+      background: white;
+      border: 3px solid #d4a017;
+      border-radius: 22px;
+      padding: 22px 20px 18px;
+      text-align: center;
+      margin-bottom: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .paw-watermark {
+      position: absolute;
+      font-size: 3.5rem;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+    .paw-watermark.tl { top: -6px; left: -6px; transform: rotate(-20deg); }
+    .paw-watermark.br { bottom: -6px; right: -6px; transform: rotate(20deg); }
+
+    .header-title {
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.9rem;
+      color: #b8860b;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.08);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .header-subtitle {
+      color: #999;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .paw-row {
+      font-size: 1.5rem;
+      letter-spacing: 6px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 13px 10px;
+      border-radius: 30px;
+      border: 2.5px solid;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      background: white;
+    }
+
+    .tab-bedtime {
+      border-color: #d4a017;
+      color: #c49010;
+    }
+    .tab-bedtime.active {
+      background: #d4a017;
+      color: white;
+    }
+
+    .tab-morning {
+      border-color: #87ceeb;
+      color: #4a9eca;
+    }
+    .tab-morning.active {
+      background: #87ceeb;
+      color: white;
+    }
+
+    /* Progress card */
+    .progress-card {
+      background: white;
+      border: 2.5px solid #87ceeb;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      font-weight: 700;
+      color: #6a7a8a;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+
+    .progress-track {
+      background: #e4f2fb;
+      border-radius: 10px;
+      height: 11px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .progress-fill {
+      background: #4a9eca;
+      height: 100%;
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.4s cubic-bezier(.4,0,.2,1);
+    }
+
+    .progress-count {
+      text-align: right;
+      font-size: 0.82rem;
+      color: #999;
+      font-weight: 700;
+    }
+
+    /* Task items */
+    .task {
+      background: white;
+      border: 2.5px solid #1a3a6e;
+      border-radius: 16px;
+      padding: 15px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, opacity 0.2s;
+      user-select: none;
+    }
+
+    .task.done {
+      border-color: #52b788;
+      background: #f0faf5;
+    }
+
+    .task-icon {
+      font-size: 1.55rem;
+      flex-shrink: 0;
+      width: 34px;
+      text-align: center;
+    }
+
+    .task-label {
+      flex: 1;
+      font-weight: 700;
+      color: #5a6a7a;
+      font-size: 1rem;
+      line-height: 1.3;
+    }
+
+    .task.done .task-label {
+      text-decoration: line-through;
+      color: #52b788;
+    }
+
+    .task-circle {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #1a3a6e;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: white;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .task.done .task-circle {
+      background: #52b788;
+      border-color: #52b788;
+    }
+
+    /* Celebration banner */
+    .celebration {
+      display: none;
+      text-align: center;
+      padding: 18px 12px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      color: #d4a017;
+      animation: pop 0.4s ease;
+    }
+    .celebration.show { display: block; }
+
+    @keyframes pop {
+      0%   { transform: scale(0.8); opacity: 0; }
+      60%  { transform: scale(1.08); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Reset */
+    .reset-btn {
+      display: block;
+      width: 100%;
+      margin-top: 14px;
+      padding: 12px;
+      background: transparent;
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      color: #bbb;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { border-color: #999; color: #999; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="moon-deco" id="deco">🌙</div>
+
+  <div class="header-card">
+    <div class="paw-watermark tl">🐾</div>
+    <div class="paw-watermark br">🐾</div>
+    <div class="header-title" id="header-title">Blue's Bedtime Clues!</div>
+    <div class="header-subtitle" id="header-subtitle">Time to wind down with Blue 🌙</div>
+    <div class="paw-row">🐾 🐾 🐾</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab tab-bedtime active" id="tab-bedtime" onclick="switchTab('bedtime')">🌙 Bedtime</button>
+    <button class="tab tab-morning" id="tab-morning" onclick="switchTab('morning')">☀️ Morning</button>
+  </div>
+
+  <div class="progress-card">
+    <div class="progress-label" id="progress-label">Blue's Bedtime Checklist 📓</div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-count" id="progress-count">0 of 4 clues found!</div>
+  </div>
+
+  <div id="tasks"></div>
+
+  <div class="celebration" id="celebration">
+    🎉 You found all the clues! Great job! 🐾
+  </div>
+
+  <button class="reset-btn" onclick="reset()">Reset checklist</button>
+</div>
+
+<script>
+  const ROUTINES = {
+    bedtime: {
+      title:    "Blue's Bedtime Clues!",
+      subtitle: "Time to wind down with Blue 🌙",
+      label:    "Blue's Bedtime Checklist 📓",
+      deco:     "🌙",
+      tasks: [
+        { icon: "🪵", text: "Brush your teeth" },
+        { icon: "🚽", text: "Go pee" },
+        { icon: "🧺", text: "Put clothes in the laundry bin" },
+        { icon: "📖", text: "Read your book" }
+      ]
+    },
+    morning: {
+      title:    "Blue's Morning Clues!",
+      subtitle: "Rise and shine! Let’s find the clues! ☀️",
+      label:    "Blue's Morning Checklist 📓",
+      deco:     "☀️",
+      tasks: [
+        { icon: "🥣", text: "Eat breakfast" },
+        { icon: "👕", text: "Get dressed" },
+        { icon: "🪵", text: "Brush your teeth" },
+        { icon: "🎒", text: "Pack your backpack" }
+      ]
+    }
+  };
+
+  let tab = 'bedtime';
+  let checked = { bedtime: [false,false,false,false], morning: [false,false,false,false] };
+
+  function switchTab(t) {
+    tab = t;
+    document.getElementById('tab-bedtime').className = 'tab tab-bedtime' + (t==='bedtime'?' active':'');
+    document.getElementById('tab-morning').className = 'tab tab-morning' + (t==='morning'?' active':'');
+    render();
+  }
+
+  function toggle(i) {
+    checked[tab][i] = !checked[tab][i];
+    render();
+  }
+
+  function reset() {
+    checked[tab] = [false,false,false,false];
+    render();
+  }
+
+  function render() {
+    const r = ROUTINES[tab];
+    const c = checked[tab];
+    const done = c.filter(Boolean).length;
+    const total = r.tasks.length;
+
+    document.getElementById('deco').textContent = r.deco;
+    document.getElementById('header-title').textContent = r.title;
+    document.getElementById('header-subtitle').textContent = r.subtitle;
+    document.getElementById('progress-label').textContent = r.label;
+    document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
+    document.getElementById('progress-count').textContent = done + ' of ' + total + ' clues found!';
+
+    const container = document.getElementById('tasks');
+    container.innerHTML = '';
+    r.tasks.forEach(function(task, i) {
+      const div = document.createElement('div');
+      div.className = 'task' + (c[i] ? ' done' : '');
+      div.innerHTML =
+        '<span class="task-icon">' + task.icon + '</span>' +
+        '<span class="task-label">' + task.text + '</span>' +
+        '<div class="task-circle">' + (c[i] ? '✓' : '') + '</div>';
+      div.addEventListener('click', function() { toggle(i); });
+      container.appendChild(div);
+    });
+
+    var cel = document.getElementById('celebration');
+    cel.className = done === total ? 'celebration show' : 'celebration';
+  }
+
+  render();
+</script>
+</body>
+</html>
