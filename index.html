@@ -4,364 +4,431 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Blue's Routine">
   <title>Blue's Routine Clues!</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: #eef4ff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 24px 16px 48px;
+    /* ===== MODES ===== */
+    body { font-family: 'Nunito', sans-serif; min-height: 100vh; }
+
+    body.bedtime {
+      background: radial-gradient(ellipse at 50% 30%, #1a2f5a 0%, #0a1628 100%);
+    }
+    body.morning {
+      background: repeating-linear-gradient(
+        -45deg,
+        #dceeff 0px, #dceeff 20px,
+        #c5deff 20px, #c5deff 40px
+      );
     }
 
-    .app {
-      width: 100%;
-      max-width: 420px;
-      position: relative;
+    /* Stars */
+    .star {
+      position: fixed; border-radius: 50%; background: white; pointer-events: none;
+      animation: twinkle var(--dur, 2s) var(--del, 0s) ease-in-out infinite;
+    }
+    @keyframes twinkle {
+      0%,100% { opacity: 0.15; transform: scale(0.8); }
+      50%      { opacity: 1;    transform: scale(1.5); }
     }
 
-    .moon-deco {
-      position: absolute;
-      top: -8px;
-      right: 4px;
-      font-size: 2.6rem;
-      pointer-events: none;
+    /* ===== LAYOUT ===== */
+    .app { position: relative; max-width: 420px; margin: 0 auto; padding: 24px 16px 52px; }
+
+    /* ===== DECO (moon / sun) ===== */
+    #deco {
+      position: fixed; top: 14px; right: 18px; font-size: 2.7rem;
+      z-index: 10; pointer-events: none;
+      animation: glow 3s ease-in-out infinite;
+    }
+    body.morning #deco { animation: sun-rise 1s ease-out forwards, glow 2s 1s ease-in-out infinite; }
+    @keyframes glow {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(255,215,60,.5)); }
+      50%      { filter: drop-shadow(0 0 22px rgba(255,215,60,1)); }
+    }
+    @keyframes sun-rise {
+      from { transform: translateY(-28px); opacity: 0; }
+      to   { transform: translateY(0);     opacity: 1; }
     }
 
-    /* Header card */
+    /* ===== HEADER CARD ===== */
     .header-card {
-      background: white;
-      border: 3px solid #d4a017;
-      border-radius: 22px;
-      padding: 22px 20px 18px;
-      text-align: center;
-      margin-bottom: 14px;
-      position: relative;
-      overflow: hidden;
+      background: rgba(255,255,255,.97); border: 3px solid #d4a017;
+      border-radius: 22px; padding: 14px 20px 18px;
+      text-align: center; margin-bottom: 14px;
+      position: relative; overflow: hidden;
+    }
+    .pw { position: absolute; font-size: 4rem; opacity: .06; pointer-events: none; }
+    .pw.tl { top: -8px; left: -8px; transform: rotate(-20deg); }
+    .pw.br { bottom: -8px; right: -8px; transform: rotate(20deg); }
+
+    .blue-svg { width: 88px; height: 88px; margin: 0 auto 8px; display: block; }
+    body.bedtime .blue-svg { animation: wiggle 2.2s ease-in-out infinite; }
+    body.morning .blue-svg { animation: wiggle 1.3s ease-in-out infinite; }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(-5deg) scale(1);    }
+      50%      { transform: rotate(5deg)  scale(1.05); }
     }
 
-    .paw-watermark {
-      position: absolute;
-      font-size: 3.5rem;
-      opacity: 0.07;
-      pointer-events: none;
+    .h-title {
+      font-family: 'Fredoka One', cursive; font-size: 1.85rem;
+      color: #b8860b; text-shadow: 2px 2px 0 rgba(0,0,0,.07);
+      margin-bottom: 6px; line-height: 1.2;
     }
-    .paw-watermark.tl { top: -6px; left: -6px; transform: rotate(-20deg); }
-    .paw-watermark.br { bottom: -6px; right: -6px; transform: rotate(20deg); }
+    .h-sub { color: #aaa; font-size: .88rem; font-weight: 700; margin-bottom: 12px; }
 
-    .header-title {
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.9rem;
-      color: #b8860b;
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.08);
-      line-height: 1.15;
-      margin-bottom: 8px;
-    }
+    .paw-row { display: flex; justify-content: center; gap: 10px; }
+    .bp { font-size: 1.3rem; animation: bp 1.4s ease-in-out infinite; }
+    .bp:nth-child(2) { animation-delay: .18s; }
+    .bp:nth-child(3) { animation-delay: .36s; }
+    @keyframes bp { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
 
-    .header-subtitle {
-      color: #999;
-      font-size: 0.92rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .paw-row {
-      font-size: 1.5rem;
-      letter-spacing: 6px;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
+    /* ===== TABS ===== */
+    .tabs { display: flex; gap: 10px; margin-bottom: 14px; }
     .tab {
-      flex: 1;
-      padding: 13px 10px;
-      border-radius: 30px;
-      border: 2.5px solid;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      background: white;
+      flex: 1; padding: 12px 10px; border-radius: 30px; border: 2.5px solid;
+      background: rgba(255,255,255,.9); font-family: 'Nunito', sans-serif;
+      font-weight: 800; font-size: 1rem; cursor: pointer; transition: background .2s, color .2s;
     }
+    .t-b { border-color: #d4a017; color: #c49010; }
+    .t-b.on { background: #d4a017; color: white; }
+    .t-m { border-color: #4a9eca; color: #4a9eca; }
+    .t-m.on { background: #4a9eca; color: white; }
 
-    .tab-bedtime {
-      border-color: #d4a017;
-      color: #c49010;
+    /* ===== NOTEBOOK PROGRESS BAR ===== */
+    .nb {
+      background: white; border: 1.5px solid #c8d0e0; border-radius: 6px;
+      padding: 12px 14px 12px 48px; margin-bottom: 14px; position: relative;
+      background-image: repeating-linear-gradient(
+        white 0px, white 27px, #bad4f0 27px, #bad4f0 28px
+      );
+      box-shadow: 2px 2px 6px rgba(0,0,0,.08);
     }
-    .tab-bedtime.active {
-      background: #d4a017;
-      color: white;
+    .nb::before {
+      content: ''; position: absolute; left: 38px; top: 0; bottom: 0;
+      width: 2px; background: #ffb3c6;
     }
+    .nb-label { font-weight: 700; color: #5a6a7a; font-size: .9rem; margin-bottom: 10px; position: relative; z-index: 1; }
+    .nb-track  { height: 14px; background: #e4f0fb; border-radius: 10px; position: relative; overflow: visible; margin-bottom: 7px; }
+    .nb-fill   {
+      height: 100%; background: linear-gradient(90deg, #4a9eca, #6cb8e8);
+      border-radius: 10px; width: 0%; transition: width .4s cubic-bezier(.4,0,.2,1); position: relative;
+    }
+    .nb-paw    { position: absolute; right: -14px; top: 50%; transform: translateY(-50%); font-size: 1.1rem; transition: opacity .3s; }
+    .nb-count  { text-align: right; font-size: .82rem; color: #888; font-weight: 700; position: relative; z-index: 1; }
 
-    .tab-morning {
-      border-color: #87ceeb;
-      color: #4a9eca;
-    }
-    .tab-morning.active {
-      background: #87ceeb;
-      color: white;
-    }
-
-    /* Progress card */
-    .progress-card {
-      background: white;
-      border: 2.5px solid #87ceeb;
-      border-radius: 16px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-    }
-
-    .progress-label {
-      font-weight: 700;
-      color: #6a7a8a;
-      font-size: 0.95rem;
-      margin-bottom: 10px;
-    }
-
-    .progress-track {
-      background: #e4f2fb;
-      border-radius: 10px;
-      height: 11px;
-      overflow: hidden;
-      margin-bottom: 6px;
-    }
-
-    .progress-fill {
-      background: #4a9eca;
-      height: 100%;
-      border-radius: 10px;
-      width: 0%;
-      transition: width 0.4s cubic-bezier(.4,0,.2,1);
-    }
-
-    .progress-count {
-      text-align: right;
-      font-size: 0.82rem;
-      color: #999;
-      font-weight: 700;
-    }
-
-    /* Task items */
+    /* ===== TASK ITEMS ===== */
     .task {
-      background: white;
-      border: 2.5px solid #1a3a6e;
-      border-radius: 16px;
-      padding: 15px 16px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s, opacity 0.2s;
-      user-select: none;
+      background: rgba(255,255,255,.95); border: 2.5px solid #1a3a6e;
+      border-radius: 16px; padding: 15px 16px; margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      transition: border-color .2s, background .2s; user-select: none; position: relative;
+    }
+    body.bedtime .task.done { border-color: #d4a017; background: rgba(255,248,220,.9); }
+    body.morning .task.done { border-color: #4a9eca; background: rgba(232,247,255,.9); }
+    .t-icon  { font-size: 1.5rem; flex-shrink: 0; width: 32px; text-align: center; }
+    .t-label { flex: 1; font-weight: 700; color: #5a6a7a; font-size: 1rem; }
+    body.bedtime .task.done .t-label { color: #c49010; text-decoration: line-through; }
+    body.morning .task.done .t-label { color: #4a9eca; text-decoration: line-through; }
+    .t-circ {
+      width: 30px; height: 30px; border: 3px solid #1a3a6e; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; color: white; transition: background .2s, border-color .2s;
+    }
+    body.bedtime .task.done .t-circ { background: #d4a017; border-color: #d4a017; }
+    body.morning .task.done .t-circ { background: #4a9eca; border-color: #4a9eca; }
+
+    /* ===== FLYING PAWS ===== */
+    .fpaw {
+      position: fixed; font-size: 1.3rem; pointer-events: none; z-index: 999;
+      animation: fpaw 1.4s ease-out forwards;
+    }
+    @keyframes fpaw {
+      0%   { transform: translateY(0)      scale(1)   rotate(0deg);  opacity: 1; }
+      100% { transform: translateY(-110px) scale(.35) rotate(25deg); opacity: 0; }
     }
 
-    .task.done {
-      border-color: #52b788;
-      background: #f0faf5;
+    /* ===== CELEBRATION ===== */
+    .cel {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      align-items: center; justify-content: center; overflow: hidden;
+    }
+    .cel.show { display: flex; }
+    body.bedtime .cel { background: rgba(8,16,34,.93); }
+    body.morning .cel { background: rgba(190,225,255,.93); }
+
+    .cp, .cpaw {
+      position: absolute; top: -24px;
+      animation: cffall var(--fd) var(--fd2) linear forwards;
+    }
+    .cp   { border-radius: 2px; }
+    .cpaw { font-size: 1.4rem; }
+    @keyframes cffall {
+      0%   { transform: translateY(0)     rotate(0deg);   opacity: 1;  }
+      100% { transform: translateY(110vh) rotate(600deg); opacity: .2; }
     }
 
-    .task-icon {
-      font-size: 1.55rem;
-      flex-shrink: 0;
-      width: 34px;
-      text-align: center;
+    .cel-card {
+      background: white; border: 4px solid #d4a017; border-radius: 26px;
+      padding: 24px 24px 22px; text-align: center;
+      max-width: 310px; width: 88%; position: relative; z-index: 1;
+      animation: pop-in .5s cubic-bezier(.175,.885,.32,1.275) both;
     }
-
-    .task-label {
-      flex: 1;
-      font-weight: 700;
-      color: #5a6a7a;
-      font-size: 1rem;
-      line-height: 1.3;
+    body.morning .cel-card { border-color: #4a9eca; }
+    @keyframes pop-in {
+      from { transform: scale(.35); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
     }
-
-    .task.done .task-label {
-      text-decoration: line-through;
-      color: #52b788;
+    .cel-blue { width: 96px; height: 96px; margin: 0 auto 12px; display: block; animation: spin-in .65s cubic-bezier(.175,.885,.32,1.275) both; }
+    @keyframes spin-in {
+      from { transform: rotate(-360deg) scale(0); opacity: 0; }
+      to   { transform: rotate(0)       scale(1); opacity: 1; }
     }
-
-    .task-circle {
-      width: 30px;
-      height: 30px;
-      border: 3px solid #1a3a6e;
-      border-radius: 50%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: white;
-      transition: background 0.2s, border-color 0.2s;
+    .cel-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: #d4a017; margin-bottom: 8px; }
+    body.morning .cel-title { color: #4a9eca; }
+    .cel-msg  { font-weight: 700; color: #6a7a8a; font-size: .95rem; margin-bottom: 20px; line-height: 1.55; }
+    .again-btn {
+      background: #d4a017; color: white; border: none; border-radius: 30px;
+      padding: 13px 32px; font-family: 'Nunito', sans-serif;
+      font-weight: 800; font-size: 1.05rem; cursor: pointer;
     }
-
-    .task.done .task-circle {
-      background: #52b788;
-      border-color: #52b788;
-    }
-
-    /* Celebration banner */
-    .celebration {
-      display: none;
-      text-align: center;
-      padding: 18px 12px;
-      font-family: 'Fredoka One', cursive;
-      font-size: 1.3rem;
-      color: #d4a017;
-      animation: pop 0.4s ease;
-    }
-    .celebration.show { display: block; }
-
-    @keyframes pop {
-      0%   { transform: scale(0.8); opacity: 0; }
-      60%  { transform: scale(1.08); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* Reset */
-    .reset-btn {
-      display: block;
-      width: 100%;
-      margin-top: 14px;
-      padding: 12px;
-      background: transparent;
-      border: 2px dashed #ccc;
-      border-radius: 12px;
-      color: #bbb;
-      font-family: 'Nunito', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .reset-btn:hover { border-color: #999; color: #999; }
+    body.morning .again-btn { background: #4a9eca; }
+    .again-btn:active { opacity: .85; }
   </style>
 </head>
 <body>
+
+<!-- Moon / Sun decoration -->
+<div id="deco">🌙</div>
+<!-- Stars container (bedtime only) -->
+<div id="stars"></div>
+
+<!-- Reusable Blue SVG (hidden symbol) -->
+<svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden;pointer-events:none">
+  <symbol id="blue" viewBox="0 0 120 120">
+    <!-- Back legs -->
+    <ellipse cx="34" cy="108" rx="10" ry="13" fill="#4a90d9"/>
+    <ellipse cx="86" cy="108" rx="10" ry="13" fill="#4a90d9"/>
+    <!-- Body -->
+    <ellipse cx="60" cy="84" rx="36" ry="28" fill="#4a90d9"/>
+    <!-- Body spots -->
+    <circle  cx="50"  cy="86" r="11"  fill="#2a6ab8"/>
+    <ellipse cx="74"  cy="78" rx="9" ry="8" fill="#2a6ab8"/>
+    <!-- Front legs -->
+    <ellipse cx="40" cy="100" rx="9" ry="12" fill="#4a90d9"/>
+    <ellipse cx="80" cy="100" rx="9" ry="12" fill="#4a90d9"/>
+    <!-- Tail -->
+    <path d="M92,72 Q115,58 110,42" stroke="#4a90d9" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <!-- Neck -->
+    <ellipse cx="60" cy="57" rx="16" ry="11" fill="#4a90d9"/>
+    <!-- Head -->
+    <circle cx="60" cy="38" r="28" fill="#4a90d9"/>
+    <!-- Left ear (floppy down) -->
+    <ellipse cx="35" cy="28" rx="11" ry="17" fill="#3a7bc8" transform="rotate(-15,35,28)"/>
+    <!-- Right ear (up) -->
+    <ellipse cx="85" cy="22" rx="10" ry="15" fill="#3a7bc8" transform="rotate(10,85,22)"/>
+    <!-- Face lighter patch -->
+    <circle cx="60" cy="42" r="16" fill="#5a9ee0"/>
+    <!-- Eyes -->
+    <circle cx="51" cy="33" r="8" fill="white"/>
+    <circle cx="69" cy="33" r="8" fill="white"/>
+    <circle cx="52" cy="34" r="5" fill="#111"/>
+    <circle cx="70" cy="34" r="5" fill="#111"/>
+    <!-- Eye highlights -->
+    <circle cx="53" cy="32" r="2" fill="white"/>
+    <circle cx="71" cy="32" r="2" fill="white"/>
+    <!-- Nose -->
+    <ellipse cx="60" cy="46" rx="5" ry="4" fill="#111"/>
+    <ellipse cx="59" cy="45" rx="2" ry="1.5" fill="#444"/>
+    <!-- Mouth -->
+    <path d="M55,51 Q60,56 65,51" stroke="#111" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  </symbol>
+</svg>
+
 <div class="app">
-  <div class="moon-deco" id="deco">🌙</div>
-
+  <!-- Header -->
   <div class="header-card">
-    <div class="paw-watermark tl">🐾</div>
-    <div class="paw-watermark br">🐾</div>
-    <div class="header-title" id="header-title">Blue's Bedtime Clues!</div>
-    <div class="header-subtitle" id="header-subtitle">Time to wind down with Blue 🌙</div>
-    <div class="paw-row">🐾 🐾 🐾</div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab tab-bedtime active" id="tab-bedtime" onclick="switchTab('bedtime')">🌙 Bedtime</button>
-    <button class="tab tab-morning" id="tab-morning" onclick="switchTab('morning')">☀️ Morning</button>
-  </div>
-
-  <div class="progress-card">
-    <div class="progress-label" id="progress-label">Blue's Bedtime Checklist 📓</div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill"></div>
+    <div class="pw tl">🐾</div>
+    <div class="pw br">🐾</div>
+    <svg class="blue-svg"><use href="#blue"/></svg>
+    <div class="h-title" id="htitle">Blue's Bedtime Clues!</div>
+    <div class="h-sub"   id="hsub">Time to wind down with Blue 🌙</div>
+    <div class="paw-row">
+      <span class="bp">🐾</span><span class="bp">🐾</span><span class="bp">🐾</span>
     </div>
-    <div class="progress-count" id="progress-count">0 of 4 clues found!</div>
   </div>
 
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab t-b" id="tb" onclick="go('bedtime')">🌙 Bedtime</button>
+    <button class="tab t-m" id="tm" onclick="go('morning')">☀️ Morning</button>
+  </div>
+
+  <!-- Notebook progress bar -->
+  <div class="nb">
+    <div class="nb-label" id="nlabel">Blue's Bedtime Checklist 📓</div>
+    <div class="nb-track">
+      <div class="nb-fill" id="nfill">
+        <span class="nb-paw" id="npaw">🐾</span>
+      </div>
+    </div>
+    <div class="nb-count" id="ncount">0 of 4 clues found!</div>
+  </div>
+
+  <!-- Task list -->
   <div id="tasks"></div>
+</div>
 
-  <div class="celebration" id="celebration">
-    🎉 You found all the clues! Great job! 🐾
+<!-- Celebration overlay -->
+<div class="cel" id="cel">
+  <div class="cel-card">
+    <svg class="cel-blue"><use href="#blue"/></svg>
+    <div class="cel-title" id="ctitle">Sleep tight!</div>
+    <div class="cel-msg"   id="cmsg">Blue found all the clues! Sweet dreams! 🌙</div>
+    <button class="again-btn" onclick="reset()">Do it again!</button>
   </div>
-
-  <button class="reset-btn" onclick="reset()">Reset checklist</button>
 </div>
 
 <script>
-  const ROUTINES = {
+  var R = {
     bedtime: {
-      title:    "Blue's Bedtime Clues!",
-      subtitle: "Time to wind down with Blue 🌙",
-      label:    "Blue's Bedtime Checklist 📓",
-      deco:     "🌙",
-      tasks: [
-        { icon: "🪥", text: "Brush your teeth" },
-        { icon: "🚽", text: "Go pee" },
-        { icon: "🧺", text: "Put clothes in the laundry bin" },
-        { icon: "📖", text: "Read your book" }
+      title:  "Blue's Bedtime Clues!",
+      sub:    "Time to wind down with Blue 🌙",
+      label:  "Blue's Bedtime Checklist 📓",
+      ctitle: "Sleep tight!",
+      cmsg:   "Blue found all the clues! Sweet dreams! 🌙",
+      tasks:  [
+        {e:"🪥", t:"Brush your teeth"},
+        {e:"🚽", t:"Go pee"},
+        {e:"🧺", t:"Put clothes in the laundry bin"},
+        {e:"📖", t:"Read your book"}
       ]
     },
     morning: {
-      title:    "Blue's Morning Clues!",
-      subtitle: "Rise and shine! Let’s find the clues! ☀️",
-      label:    "Blue's Morning Checklist 📓",
-      deco:     "☀️",
-      tasks: [
-        { icon: "🥣", text: "Eat breakfast" },
-        { icon: "👕", text: "Get dressed" },
-        { icon: "🪥", text: "Brush your teeth" },
-        { icon: "🎒", text: "Pack your backpack" }
+      title:  "Blue's Morning Clues!",
+      sub:    "Rise and shine! Let's find the clues! ☀️",
+      label:  "Blue's Morning Checklist 📓",
+      ctitle: "Let's go! Yay!",
+      cmsg:   "Blue thinks you're a superstar today! ⭐",
+      tasks:  [
+        {e:"🚽", t:"Go pee first!"},
+        {e:"🪥", t:"Brush your teeth"},
+        {e:"🥣", t:"Eat breakfast"},
+        {e:"👕", t:"Put your clothes on"},
+        {e:"👟", t:"Put your shoes on"},
+        {e:"🚗", t:"Get in the car"}
       ]
     }
   };
 
-  let tab = 'bedtime';
-  let checked = { bedtime: [false,false,false,false], morning: [false,false,false,false] };
+  var h   = new Date().getHours();
+  var tab = (h >= 5 && h < 12) ? 'morning' : 'bedtime';
+  var chk = { bedtime: [false,false,false,false], morning: [false,false,false,false,false,false] };
 
-  function switchTab(t) {
-    tab = t;
-    document.getElementById('tab-bedtime').className = 'tab tab-bedtime' + (t==='bedtime'?' active':'');
-    document.getElementById('tab-morning').className = 'tab tab-morning' + (t==='morning'?' active':'');
-    render();
+  function applyMode() {
+    document.body.className = tab;
+    document.getElementById('deco').textContent = tab === 'bedtime' ? '🌙' : '☀️';
+    var stars = document.getElementById('stars');
+    stars.innerHTML = '';
+    if (tab === 'bedtime') {
+      for (var i = 0; i < 65; i++) {
+        var s = document.createElement('div');
+        s.className = 'star';
+        var sz = 1 + Math.random() * 2.5;
+        s.style.cssText = 'left:' + (Math.random()*100) + 'vw;top:' + (Math.random()*100) + 'vh;' +
+          'width:' + sz + 'px;height:' + sz + 'px;' +
+          '--dur:' + (1.5 + Math.random()*3) + 's;--del:' + (Math.random()*4) + 's;';
+        stars.appendChild(s);
+      }
+    }
   }
 
-  function toggle(i) {
-    checked[tab][i] = !checked[tab][i];
+  function go(t) { tab = t; applyMode(); render(); }
+
+  function spawnPaws(el) {
+    var r = el.getBoundingClientRect();
+    [0.2, 0.5, 0.8].forEach(function(x, i) {
+      var p = document.createElement('span');
+      p.className = 'fpaw';
+      p.textContent = '🐾';
+      p.style.cssText = 'left:' + (r.left + r.width*x) + 'px;top:' + (r.top + r.height/2) + 'px;' +
+        'animation-delay:' + (i * 0.12) + 's';
+      document.body.appendChild(p);
+      setTimeout(function(){ p.remove(); }, 1600);
+    });
+  }
+
+  function toggle(i, el) {
+    var was = !chk[tab][i];
+    chk[tab][i] = !chk[tab][i];
+    if (was) spawnPaws(el);
     render();
+    var done = chk[tab].filter(Boolean).length;
+    if (done === R[tab].tasks.length) setTimeout(celebrate, 450);
+  }
+
+  function celebrate() {
+    var r = R[tab];
+    document.getElementById('ctitle').textContent = r.ctitle;
+    document.getElementById('cmsg').textContent   = r.cmsg;
+    var cel = document.getElementById('cel');
+    cel.querySelectorAll('.cp,.cpaw').forEach(function(e){ e.remove(); });
+    var colors = ['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#cc5de8','#f8a5c2'];
+    for (var i = 0; i < 45; i++) {
+      var c = document.createElement('div');
+      c.className = 'cp';
+      var sz = 6 + Math.random()*10;
+      c.style.cssText = 'left:' + (Math.random()*100) + '%;width:' + sz + 'px;height:' + sz + 'px;' +
+        'background:' + colors[i % colors.length] + ';--fd:' + (2+Math.random()*2) + 's;--fd2:' + (Math.random()) + 's';
+      cel.appendChild(c);
+    }
+    for (var j = 0; j < 14; j++) {
+      var pw = document.createElement('div');
+      pw.className = 'cpaw'; pw.textContent = '🐾';
+      pw.style.cssText = 'left:' + (Math.random()*100) + '%;--fd:' + (2.5+Math.random()*2) + 's;--fd2:' + (Math.random()*1.5) + 's';
+      cel.appendChild(pw);
+    }
+    cel.classList.add('show');
   }
 
   function reset() {
-    checked[tab] = [false,false,false,false];
+    var n = R[tab].tasks.length;
+    chk[tab] = Array(n).fill(false);
+    document.getElementById('cel').classList.remove('show');
     render();
   }
 
   function render() {
-    const r = ROUTINES[tab];
-    const c = checked[tab];
-    const done = c.filter(Boolean).length;
-    const total = r.tasks.length;
+    var r     = R[tab];
+    var c     = chk[tab];
+    var done  = c.filter(Boolean).length;
+    var total = r.tasks.length;
 
-    document.getElementById('deco').textContent = r.deco;
-    document.getElementById('header-title').textContent = r.title;
-    document.getElementById('header-subtitle').textContent = r.subtitle;
-    document.getElementById('progress-label').textContent = r.label;
-    document.getElementById('progress-fill').style.width = (done / total * 100) + '%';
-    document.getElementById('progress-count').textContent = done + ' of ' + total + ' clues found!';
+    document.getElementById('htitle').textContent  = r.title;
+    document.getElementById('hsub').textContent    = r.sub;
+    document.getElementById('nlabel').textContent  = r.label;
+    document.getElementById('ncount').textContent  = done + ' of ' + total + ' clues found!';
+    document.getElementById('nfill').style.width   = (done / total * 100) + '%';
+    document.getElementById('npaw').style.opacity  = done > 0 ? '1' : '0';
+    document.getElementById('tb').className = 'tab t-b' + (tab==='bedtime'?' on':'');
+    document.getElementById('tm').className = 'tab t-m' + (tab==='morning'?' on':'');
 
-    const container = document.getElementById('tasks');
+    var container = document.getElementById('tasks');
     container.innerHTML = '';
     r.tasks.forEach(function(task, i) {
-      const div = document.createElement('div');
-      div.className = 'task' + (c[i] ? ' done' : '');
-      div.innerHTML =
-        '<span class="task-icon">' + task.icon + '</span>' +
-        '<span class="task-label">' + task.text + '</span>' +
-        '<div class="task-circle">' + (c[i] ? '✓' : '') + '</div>';
-      div.addEventListener('click', function() { toggle(i); });
-      container.appendChild(div);
+      var d = document.createElement('div');
+      d.className = 'task' + (c[i] ? ' done' : '');
+      d.innerHTML = '<span class="t-icon">' + task.e + '</span>' +
+                    '<span class="t-label">' + task.t + '</span>' +
+                    '<div class="t-circ">' + (c[i] ? '✓' : '') + '</div>';
+      d.addEventListener('click', (function(idx, el){ return function(){ toggle(idx, el); }; })(i, d));
+      container.appendChild(d);
     });
-
-    var cel = document.getElementById('celebration');
-    cel.className = done === total ? 'celebration show' : 'celebration';
   }
 
+  applyMode();
   render();
 </script>
 </body>
